@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dumpster Diver</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #FFFFFF;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Chalkboard SE", "Marker Felt", cursive;
+      color: #000000;
+      font-weight: bold;
+    }
+
+    .title-font {
+      font-family: "Courier New", Courier, monospace;
+      font-weight: bold;
+    }
+
+    .retro-link {
+      font-family: -apple-system, BlinkMacSystemFont, "Chalkboard SE", "Marker Felt", cursive;
+      color: #0000EE;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 24px;
+      display: inline-block;
+      transition: color 0.1s;
+    }
+
+    .retro-link.small {
+      font-size: 12px;
+    }
+
+    .retro-link:hover {
+      color: #551A8B;
+    }
+
+    .retro-link:focus-visible {
+      outline: 3px dotted #0000EE;
+      outline-offset: 2px;
+    }
+
+    .blink {
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .rainbow-flash {
+      animation: rainbowFlash 0.8s infinite;
+      font-weight: bold;
+    }
+
+    @keyframes rainbowFlash {
+      0% { background-color: #FF0000; color: #FFFFFF; }
+      16% { background-color: #FF7F00; color: #FFFFFF; }
+      33% { background-color: #FFFF00; color: #000000; }
+      50% { background-color: #00FF00; color: #000000; }
+      66% { background-color: #0000FF; color: #FFFFFF; }
+      83% { background-color: #4B0082; color: #FFFFFF; }
+      100% { background-color: #9400D3; color: #FFFFFF; }
+    }
+
+    .gray-button {
+      background-color: #CCCCCC;
+      color: #000000;
+      font-family: -apple-system, BlinkMacSystemFont, "Chalkboard SE", "Marker Felt", cursive;
+      border: 3px solid #000000;
+      cursor: pointer;
+      padding: 12px 32px;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: all 0.1s;
+    }
+
+    .gray-button:hover {
+      background-color: #AAAAAA;
+    }
+
+    .gray-button:active {
+      transform: scale(0.98);
+    }
+
+    .gray-button:focus-visible {
+      outline: 3px dotted #0000EE;
+      outline-offset: 2px;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full flex items-center justify-center px-4 py-8 overflow-auto">
+   <main class="w-full max-w-2xl text-center fade-in">
+    <!-- Title -->
+    <header class="mb-8">
+     <p class="text-sm mb-2" style="font-family: 'Comic Sans MS', 'Comic Sans', cursive;">Return of the</p>
+     <h1 class="title-font text-6xl sm:text-7xl font-black tracking-widest mb-6">Dumpster Diver</h1><!-- Retro Dumpster Graphic --> <!-- Random Dumpster Image -->
+     <div class="flex justify-center mb-8">
+      <img id="dumpsterImage" src="" alt="Dumpster" style="max-width: 300px; max-height: 250px; object-fit: contain;" loading="lazy" onerror="console.error('Dumpster image failed to load:', this.src); this.style.background='#5c7f52'; this.alt='Dumpster image unavailable';">
+     </div>
+    </header><!-- Intro Text -->
+    <section class="mb-10">
+     <p id="introText" class="text-xl leading-relaxed mb-6" style="font-family: 'Comic Sans MS', 'Comic Sans', cursive;">You're going diving! <span class="rainbow-flash" style="padding: 2px 4px;">Dumpster diving!</span> Click below to rummage through a glorious heap of forgotten treasures, nostalgic junk, and mildly cursed artifacts.</p>
+    </section><!-- Enter Button (styled as gray button) -->
+    <section class="mb-12">
+     <button id="enterLink" class="gray-button">Jump In and Start Diving</button>
+    </section><!-- Footer -->
+    <footer class="text-sm mt-12">
+     <p style="font-family: 'Comic Sans MS', 'Comic Sans', cursive;"><a id="footerText" href="https://modes.io/dumpster-diver/" target="_blank" rel="noopener noreferrer" class="retro-link small">A loving remake of the 1990s classic.</a></p>
+     <p class="mt-3 text-xs" style="font-family: 'Comic Sans MS', 'Comic Sans', cursive;"><span class="blink">●</span> Best viewed in Netscape Navigator <span class="blink">●</span></p>
+    </footer>
+   </main>
+  </div>
+  <script>
+    const defaultConfig = {
+      intro_text: "You're going diving! Dumpster diving! Click below to rummage through a glorious heap of forgotten treasures, nostalgic junk, and mildly cursed artifacts.",
+      button_text: "Jump In and Start Diving",
+      footer_text: "A loving remake of the 1990s classic."
+    };
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          document.getElementById("introText").textContent = config.intro_text || defaultConfig.intro_text;
+          document.getElementById("enterLink").textContent = config.button_text || defaultConfig.button_text;
+          document.getElementById("footerText").textContent = config.footer_text || defaultConfig.footer_text;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["intro_text", config.intro_text || defaultConfig.intro_text],
+          ["button_text", config.button_text || defaultConfig.button_text],
+          ["footer_text", config.footer_text || defaultConfig.footer_text]
+        ])
+      });
+    }
+
+    // Sample treasure data (65 items)
+    const treasures = [
+      { name: "Banana Peel", caption: "Classic slapstick hazard. Walk carefully.", image: "banana-peel.png" },
+      { name: "Broken TV Remote", caption: "Volume up? Not today.", image: "broken-remote.png" },
+      { name: "Half-Melted Action Figure", caption: "Still ready to save the world… slowly.", image: "melted-action-figure.png" },
+      { name: "Suspicious Tupperware", caption: "The smell is older than you.", image: "suspicious-tupperware.png" },
+      { name: "Cursed Doll Head", caption: "It blinked. Probably the wind.", image: "doll-head.png" },
+      { name: "Bent Fork", caption: "Perfect for eating… nothing.", image: "bent-fork.png" },
+      { name: "Mystery Goo Jar", caption: "Do not open. Seriously.", image: "mystery-goo.png" },
+      { name: "Old Flip Phone", caption: "Battery at 2%. Permanently.", image: "flip-phone.png" },
+      { name: "Single Rollerblade", caption: "The other one escaped.", image: "single-rollerblade.png" },
+      { name: "Cracked Snow Globe", caption: "It snows sadness now.", image: "cracked-snow-globe.png" },
+      { name: "Expired Coupon Book", caption: "Good deals… in 2011.", image: "coupon-book.png" },
+      { name: "Rusty Wrench", caption: "Adds tetanus to any project.", image: "rusty-wrench.png" },
+      { name: "Haunted Furby Battery", caption: "Still warm. Still judging you.", image: "furby-battery.png" },
+      { name: "Sock Without a Partner", caption: "It swears it used to be a pair.", image: "lonely-sock.png" },
+      { name: "Sticky Note with No Stick", caption: "A reminder of failure.", image: "dead-sticky-note.png" },
+      { name: "Crushed Soda Can", caption: "It fought a car and lost.", image: "crushed-can.png" },
+      { name: "Plastic Dinosaur Missing a Leg", caption: "Triassic tragedy.", image: "broken-dinosaur.png" },
+      { name: "Mysterious Key", caption: "Opens nothing. Or everything.", image: "mystery-key.png" },
+      { name: "Old Birthday Balloon", caption: "Still clinging to the party.", image: "sad-balloon.png" },
+      { name: "CD-R Labeled 'DO NOT PLAY'", caption: "You want to play it now, don't you.", image: "do-not-play-cd.png" },
+      { name: "Cracked Coffee Mug", caption: "Holds liquids… briefly.", image: "cracked-mug.png" },
+      { name: "Tangled Headphones", caption: "A knot no mortal can undo.", image: "tangled-headphones.png" },
+      { name: "Half-Burned Candle", caption: "Smells like regret.", image: "burned-candle.png" },
+      { name: "Toy Car Missing Wheels", caption: "Goes nowhere fast.", image: "wheel-less-car.png" },
+      { name: "Notebook with One Page Left", caption: "Use it wisely.", image: "last-page-notebook.png" },
+      { name: "Melted Crayon", caption: "Artistic potential: questionable.", image: "melted-crayon.png" },
+      { name: "Old Mousepad", caption: "Once ergonomic. Now tragic.", image: "old-mousepad.png" },
+      { name: "Mystery Meat Wrapper", caption: "Don't sniff it.", image: "meat-wrapper.png" },
+      { name: "Plastic Fork with Three Tines", caption: "Lost one in battle.", image: "three-tine-fork.png" },
+      { name: "Deflated Pool Float", caption: "Used to be fun.", image: "deflated-float.png" },
+      { name: "Dusty VHS Tape", caption: "Recorded over at least six times.", image: "vhs-tape.png" },
+      { name: "Slightly Cursed Snowman Ornament", caption: "It watches.", image: "snowman-ornament.png" },
+      { name: "Old Keychain Flashlight", caption: "Dim but determined.", image: "flashlight-keychain.png" },
+      { name: "Cracked Phone Case", caption: "Protected the phone. Not itself.", image: "cracked-phone-case.png" },
+      { name: "Sticky Baseball", caption: "Don't ask why it's sticky.", image: "sticky-baseball.png" },
+      { name: "Half-Used Glue Stick", caption: "More crust than glue.", image: "glue-stick.png" },
+      { name: "Plastic Halloween Spider", caption: "Still scary at 2 a.m.", image: "fake-spider.png" },
+      { name: "Old USB Drive", caption: "Contains 3 files and 12 viruses.", image: "usb-drive.png" },
+      { name: "Bent Paperclip", caption: "Dreams of being straight again.", image: "bent-paperclip.png" },
+      { name: "Mystery Powder Packet", caption: "Probably hot cocoa. Probably.", image: "mystery-powder.png" },
+      { name: "Cracked Picture Frame", caption: "Holds memories… loosely.", image: "cracked-frame.png" },
+      { name: "Single Puzzle Piece", caption: "From a 5000-piece set.", image: "puzzle-piece.png" },
+      { name: "Old Dog Toy", caption: "Still squeaks. Barely.", image: "old-dog-toy.png" },
+      { name: "Broken Sunglasses", caption: "Coolness: compromised.", image: "broken-sunglasses.png" },
+      { name: "Half-Eaten Candy Cane", caption: "Christmas past.", image: "candy-cane.png" },
+      { name: "Loose Keyboard Key", caption: "It was the 'E'. Good luck typing.", image: "keyboard-key.png" },
+      { name: "Crushed Gift Bow", caption: "Festive in spirit only.", image: "crushed-bow.png" },
+      { name: "Old Paintbrush", caption: "Bristles retired.", image: "old-paintbrush.png" },
+      { name: "Mystery Remote with No Buttons", caption: "Controls nothing.", image: "buttonless-remote.png" },
+      { name: "Slightly Haunted Snow Boot", caption: "Crunches even indoors.", image: "haunted-snow-boot.png" },
+      { name: "Melted M.U.S.C.L.E. Man", caption: "Once a champion of the ring. Now a pink puddle of defeat.", image: "melted-muscle-man.png" },
+      { name: "Garbage Pail Kids Card", caption: "Still smells faintly of bubble gum and poor decisions.", image: "garbage-pail-card.png" },
+      { name: "Fun Dip Packet", caption: "Just add saliva and childhood regret.", image: "fun-dip.png" },
+      { name: "Cabbage Patch Kid", caption: "Adopted. Returned. Adopted again. It's been a journey.", image: "cabbage-patch-kid.png" },
+      { name: "E.T. Atari Cartridge", caption: "Famously buried in the desert. This one crawled back.", image: "et-atari-game.png" },
+      { name: "Bob's Big Boy Figurine", caption: "Still proudly holding that burger like it's 1959.", image: "bobs-big-boy.png" },
+      { name: "Pizza Hut BTTF II Sunglasses", caption: "The future is… scratched.", image: "pizza-hut-bttf2-sunglasses.png" },
+      { name: "Commodore 64 Tape Drive", caption: "Loading… still loading… please wait… forever.", image: "commodore64-tape-drive.png" },
+      { name: "Dawson's Creek VHS (Episodes 1 & 2)", caption: "You don't want to wait… but you will.", image: "dawsons-creek-vhs.png" },
+      { name: "Jingle All The Way VHS", caption: "Turbo Man not included.", image: "jingle-all-the-way-vhs.png" },
+      { name: "Oregon Trail Floppy Disks", caption: "You have died of disk corruption.", image: "oregon-trail-floppies.png" },
+      { name: "Dial-Up Modem", caption: "The sound of the internet screaming.", image: "dial-up-modem.png" },
+      { name: "Hypercolor Shirt", caption: "It changed colors once. Then gave up.", image: "hypercolor-shirt.png" },
+      { name: "Popped Pogo Ball", caption: "All bounce. No ball.", image: "pogo-ball.png" },
+      { name: "Blue/Cyan 3D Glasses", caption: "For movies that were never actually 3D.", image: "blue-cyan-3d-glasses.png" }
+    ];
+
+    // Track which treasures have been seen in this session
+    let seenTreasures = [];
+
+    // Show treasure randomizer
+    function showRandomizer() {
+      // If all treasures have been seen, reset the list
+      if (seenTreasures.length === treasures.length) {
+        seenTreasures = [];
+      }
+
+      // Get remaining unseen treasures
+      const unseenTreasures = treasures.filter((t, index) => !seenTreasures.includes(index));
+      const randomIndex = Math.floor(Math.random() * unseenTreasures.length);
+      const randomTreasure = unseenTreasures[randomIndex];
+      
+      // Mark this treasure as seen by storing its index
+      const treasureIndex = treasures.indexOf(randomTreasure);
+      seenTreasures.push(treasureIndex);
+      const randomDumpster = getRandomDumpsterImage();
+      const app = document.getElementById("app");
+      
+      app.innerHTML = `
+        <div class="w-full max-w-2xl text-center fade-in">
+          <header class="mb-8">
+            <h1 class="title-font text-6xl sm:text-7xl font-black tracking-widest mb-6">Dumpster Diver</h1>
+          </header>
+          
+          <main class="mb-8">
+            <h2 class="title-font text-4xl font-bold mb-8" style="font-family: Impact, Arial Black, sans-serif;">${randomTreasure.name}</h2>
+            
+            <div class="flex justify-center mb-8">
+              <img src="https://raw.githubusercontent.com/jimczad/dumsterdiver/main/${randomTreasure.image}" alt="${randomTreasure.name}" 
+                   style="max-width: 300px; max-height: 300px; object-fit: contain;" 
+                   loading="lazy"
+                   onerror="this.style.background='#999999'; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22%3E%3Cdefs%3E%3Cstyle%3E.raccoon%7Bfill:%23333%7D.trash%7Bfill:%23666%7D%3C/style%3E%3C/defs%3E%3Ccircle cx=%22150%22 cy=%22100%22 r=%2240%22 class=%22raccoon%22/%3E%3Ccircle cx=%22130%22 cy=%2280%22 r=%2218%22 class=%22raccoon%22/%3E%3Ccircle cx=%22170%22 cy=%2280%22 r=%2218%22 class=%22raccoon%22/%3E%3Ccircle cx=%22120%22 cy=%2275%22 r=%226%22 fill=%22%23fff%22/%3E%3Ccircle cx=%22180%22 cy=%2275%22 r=%226%22 fill=%22%23fff%22/%3E%3Ccircle cx=%22118%22 cy=%2275%22 r=%223%22 fill=%22%23000%22/%3E%3Ccircle cx=%22182%22 cy=%2275%22 r=%223%22 fill=%22%23000%22/%3E%3Crect x=%2280%22 y=%22150%22 width=%22140%22 height=%2280%22 class=%22trash%22 stroke=%22%23000%22 stroke-width=%222%22/%3E%3Ctext x=%22150%22 y=%22200%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2224%22 font-weight=%22bold%22%3ETRASH%3C/text%3E%3C/svg%3E';" />
+            </div>
+            
+            <p class="text-2xl mb-8 italic" style="font-family: 'Comic Sans MS', 'Comic Sans', cursive;">"${randomTreasure.caption}"</p>
+            
+            <div class="flex gap-6 justify-center flex-wrap">
+              <a href="#" class="retro-link" id="diveAgainLink">Dive Again</a>
+              <a href="#" class="retro-link" id="shareLink">Share This Treasure</a>
+              <a href="#" class="retro-link" id="emailLink">Email This Treasure</a>
+            </div>
+            
+            <div id="youveGotMailIcon" class="mt-4" style="display: none; font-size: 12px; font-family: 'Comic Sans MS', 'Comic Sans', cursive;">
+              <span class="blink">📧</span> You've got mail!
+            </div>
+          </main>
+          
+          <footer class="text-sm mt-12">
+            <p style="font-family: 'Comic Sans MS', 'Comic Sans', cursive;"><a href="#" class="retro-link" id="backLink">← Back to Home</a></p>
+          </footer>
+        </div>
+      `;
+      
+      document.getElementById("diveAgainLink").addEventListener("click", (e) => {
+        e.preventDefault();
+        showRandomizer();
+      });
+      
+      document.getElementById("shareLink").addEventListener("click", (e) => {
+        e.preventDefault();
+        const shareText = `Found: ${randomTreasure.name}\n\n"${randomTreasure.caption}"\n\nDumpster Diver - Found via Dumpster Diver`;
+        if (navigator.share) {
+          navigator.share({ title: randomTreasure.name, text: shareText });
+        } else {
+          alert(shareText);
+        }
+      });
+      
+      document.getElementById("emailLink").addEventListener("click", (e) => {
+        e.preventDefault();
+        generateShareCard(randomTreasure);
+      });
+      
+      document.getElementById("backLink").addEventListener("click", (e) => {
+        e.preventDefault();
+        location.reload();
+      });
+    }
+
+    // Generate share card and trigger email
+    function generateShareCard(treasure) {
+      const cardWidth = 600;
+      const cardHeight = 500;
+      
+      // Create canvas for the share card
+      const canvas = document.createElement("canvas");
+      canvas.width = cardWidth;
+      canvas.height = cardHeight;
+      const ctx = canvas.getContext("2d");
+      
+      // Light gray background
+      ctx.fillStyle = "#F2F2F2";
+      ctx.fillRect(0, 0, cardWidth, cardHeight);
+      
+      // Draw border
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(0, 0, cardWidth, cardHeight);
+      
+      // Draw item name
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 32px Impact, Arial Black, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(treasure.name, cardWidth / 2, 50);
+      
+      // Create placeholder raccoon image inline
+      const placeholderSvg = `data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22250%22%3E%3Cdefs%3E%3Cstyle%3E.raccoon%7Bfill:%23333%7D.trash%7Bfill:%23666%7D%3C/style%3E%3C/defs%3E%3Ccircle cx=%22125%22 cy=%2280%22 r=%2240%22 class=%22raccoon%22/%3E%3Ccircle cx=%22105%22 cy=%2260%22 r=%2218%22 class=%22raccoon%22/%3E%3Ccircle cx=%22145%22 cy=%2260%22 r=%2218%22 class=%22raccoon%22/%3E%3Ccircle cx=%2295%22 cy=%2255%22 r=%226%22 fill=%22%23fff%22/%3E%3Ccircle cx=%22155%22 cy=%2255%22 r=%226%22 fill=%22%23fff%22/%3E%3Ccircle cx=%2293%22 cy=%2255%22 r=%223%22 fill=%22%23000%22/%3E%3Ccircle cx=%22157%22 cy=%2255%22 r=%223%22 fill=%22%23000%22/%3E%3Crect x=%2260%22 y=%22130%22 width=%22140%22 height=%2280%22 class=%22trash%22 stroke=%22%23000%22 stroke-width=%222%22/%3E%3Ctext x=%22130%22 y=%22180%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2220%22 font-weight=%22bold%22%3ETRASH%3C/text%3E%3C/svg%3E`;
+      
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        ctx.drawImage(img, (cardWidth - 200) / 2, 80, 200, 200);
+        finalize();
+      };
+      img.onerror = () => {
+        finalize();
+      };
+      img.src = placeholderSvg;
+      
+      function finalize() {
+        // Draw caption
+        ctx.fillStyle = "#000000";
+        ctx.font = "italic 18px Times New Roman, Times, serif";
+        ctx.textAlign = "center";
+        
+        // Word wrap caption
+        const maxWidth = cardWidth - 40;
+        const lineHeight = 25;
+        const words = treasure.caption.split(" ");
+        let line = "";
+        let y = 310;
+        
+        words.forEach((word) => {
+          const testLine = line + word + " ";
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && line) {
+            ctx.fillText(line.trim(), cardWidth / 2, y);
+            line = word + " ";
+            y += lineHeight;
+          } else {
+            line = testLine;
+          }
+        });
+        if (line) {
+          ctx.fillText(line.trim(), cardWidth / 2, y);
+        }
+        
+        // Draw footer
+        ctx.fillStyle = "#666666";
+        ctx.font = "italic 12px Times New Roman, Times, serif";
+        ctx.fillText("Found via Dumpster Diver", cardWidth / 2, cardHeight - 20);
+        
+        // Convert to image and trigger email
+        const imageData = canvas.toDataURL("image/png");
+        triggerEmail(treasure, imageData);
+      }
+    }
+
+    // Trigger email with share card
+    function triggerEmail(treasure, imageData) {
+      const subject = "Look what I found in the dumpster!";
+      const body = `Check out this treasure I found on Dumpster Diver:\n\n"${treasure.caption}"\n\nImage attached.`;
+      const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      // Show a fallback message since mailto doesn't support attachments
+      const fallbackMessage = `📧 Share card generated!\n\nCopy this link to download the image:\n\n${imageData}\n\nThen attach it to an email with this message:\n\n${body}`;
+      
+      // Create a temporary download link for the image
+      const downloadLink = document.createElement("a");
+      downloadLink.href = imageData;
+      downloadLink.download = `${treasure.name.replace(/\s+/g, "-").toLowerCase()}-treasure.png`;
+      
+      // Show the "You've got mail!" message
+      const mailIcon = document.getElementById("youveGotMailIcon");
+      if (mailIcon) {
+        mailIcon.style.display = "block";
+        setTimeout(() => {
+          mailIcon.style.display = "none";
+        }, 3000);
+      }
+      
+      // Trigger download and open email
+      downloadLink.click();
+      window.open(mailto, "_blank");
+    }
+
+    // Handle button click
+    document.getElementById("enterLink").addEventListener("click", (event) => {
+      event.preventDefault();
+      showRandomizer();
+    });
+
+    // Get random dumpster image
+    function getRandomDumpsterImage() {
+      const dumpsterCount = 8;
+      const randomNum = Math.floor(Math.random() * dumpsterCount) + 1;
+      return `https://raw.githubusercontent.com/jimczad/dumsterdiver/main/dumpster${randomNum}.png`;
+    }
+
+    // Load random dumpster image on page load
+    document.addEventListener("DOMContentLoaded", () => {
+      const dumpsterImg = document.getElementById("dumpsterImage");
+      if (dumpsterImg) {
+        dumpsterImg.src = getRandomDumpsterImage();
+      }
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e43fdc77735fca8',t:'MTc3NDg0MDk2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
